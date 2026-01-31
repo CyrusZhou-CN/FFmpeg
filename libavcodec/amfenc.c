@@ -351,6 +351,15 @@ int ff_amf_encode_init(AVCodecContext *avctx)
         AMF_RETURN_IF_FALSE(ctx, ret == 0, ret, "Failed to create  hardware device context (AMF) : %s\n", av_err2str(ret));
     }
 
+    if (ctx->pa_lookahead_buffer_depth >= ctx->hwsurfaces_in_queue_max) {
+        av_log(avctx, AV_LOG_WARNING,
+               "async_depth (%d) too small for lookahead (%d), increasing to (%d)\n",
+                ctx->hwsurfaces_in_queue_max,
+                ctx->pa_lookahead_buffer_depth,
+                ctx->pa_lookahead_buffer_depth + 1);
+        ctx->hwsurfaces_in_queue_max = ctx->pa_lookahead_buffer_depth + 1;
+    }
+
     if ((ret = amf_init_encoder(avctx)) == 0) {
         return 0;
     }
@@ -564,9 +573,11 @@ static int amf_submit_frame_locked(AVCodecContext *avctx, AVFrame *frame, AMFSur
     AVHWDeviceContext     *hw_device_ctx = (AVHWDeviceContext*)ctx->device_ctx_ref->data;
     AVAMFDeviceContext    *amf_device_ctx = (AVAMFDeviceContext *)hw_device_ctx->hwctx;
 
-    ff_mutex_lock(&amf_device_ctx->mutex);
+    if (amf_device_ctx->lock)
+        amf_device_ctx->lock(amf_device_ctx->lock_ctx);
     ret = amf_submit_frame(avctx, frame, surface_resubmit);
-    ff_mutex_unlock(&amf_device_ctx->mutex);
+    if (amf_device_ctx->unlock)
+        amf_device_ctx->unlock(amf_device_ctx->lock_ctx);
 
     return ret;
 }

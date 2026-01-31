@@ -138,6 +138,7 @@ typedef struct MPVEncContext {
     int last_bits; ///< temp var used for calculating the above vars
 
     int mb_skip_run;
+    int last_dc[3];                ///< last DC values
 
     /* H.263 specific */
     int gob_index;
@@ -191,6 +192,9 @@ typedef struct MPVEncContext {
     int (*sum_abs_dctelem)(const int16_t *block);
 
     int intra_penalty;
+
+    uint8_t permutated_intra_h_scantable[64];
+    uint8_t permutated_intra_v_scantable[64];
 
     DECLARE_ALIGNED_32(int16_t, blocks)[2][12][64]; // for HQ mode we need to keep the best block
 } MPVEncContext;

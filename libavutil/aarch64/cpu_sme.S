@@ -1,6 +1,5 @@
 /*
- * MPEG-1/2 codecs common code
- * Copyright (c) 2007 Aurelien Jacobs <aurel@gnuage.org>
+ * Copyright (c) 2025 Georgii Zagoruiko
  *
  * This file is part of FFmpeg.
  *
@@ -19,11 +18,14 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
  */
 
-#ifndef AVCODEC_MPEG12CODECS_H
-#define AVCODEC_MPEG12CODECS_H
+#include "config.h"
+#include "asm.S"
 
-#include "mpegvideo.h"
+ENABLE_SME
 
-void ff_mpeg1_clean_buffers(MpegEncContext *s);
-
-#endif /* AVCODEC_MPEG12CODECS_H */
+function ff_aarch64_sme_length, export=1
+        smstart
+        cntb            x0
+        smstop
+        ret
+endfunc
