@@ -1,5 +1,7 @@
 /*
- * RV10/RV20 encoder
+ * FFv1 codec
+ *
+ * Copyright (c) 2026 Lynne <dev@lynne.ee>
  *
  * This file is part of FFmpeg.
  *
@@ -18,12 +20,9 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
  */
 
-#ifndef AVCODEC_RV10ENC_H
-#define AVCODEC_RV10ENC_H
+#pragma shader_stage(compute)
+#extension GL_GOOGLE_include_directive : require
 
-typedef struct MPVMainEncContext MPVMainEncContext;
-
-int ff_rv10_encode_picture_header(MPVMainEncContext *m);
-int ff_rv20_encode_picture_header(MPVMainEncContext *m);
-
-#endif /* AVCODEC_RV10ENC_H */
+#define PB_UNALIGNED
+#define GOLOMB
+#include "ffv1_enc.comp.glsl"
